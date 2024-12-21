@@ -1,0 +1,131 @@
+---
+import { formatDistance } from 'date-fns';
+import type { Post } from '../../types/blog';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
+---
+
+<article class="post-card">
+  <a href={`/blog/${post.slug}`} class="post-link">
+    {post.heroImage && (
+      <img 
+        src={post.heroImage} 
+        alt="" 
+        class="post-image"
+        width="400"
+        height="225"
+      />
+    )}
+    <div class="post-content">
+      <div class="post-meta">
+        {post.categories?.map(category => (
+          <span class="category-tag">{category.name}</span>
+        ))}
+        <span class="reading-time">{readingTime} min read</span>
+      </div>
+      
+      <h2 class="post-title">{post.title}</h2>
+      <p class="post-excerpt">{post.excerpt}</p>
+      
+      <div class="post-footer">
+        <div class="author">
+          <img 
+            src={post.author.avatar_url || '/images/default-avatar.png'} 
+            alt={post.author.name}
+            class="author-avatar"
+          />
+          <span>{post.author.name}</span>
+        </div>
+        <time datetime={post.created_at}>
+          {formatDistance(new Date(post.created_at), new Date(), { addSuffix: true })}
+        </time>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .post-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--transition-base);
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .post-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .post-image {
+    width: 100%;
+    height: 225px;
+    object-fit: cover;
+  }
+
+  .post-content {
+    padding: var(--space-4);
+  }
+
+  .post-meta {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .category-tag {
+    background: var(--accent-1);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+  }
+
+  .reading-time {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .post-title {
+    font-size: var(--font-size-xl);
+    margin: var(--space-2) 0;
+  }
+
+  .post-excerpt {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .author-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+  }
+</style>

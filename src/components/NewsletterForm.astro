@@ -1,0 +1,87 @@
+---
+---
+<div class="newsletter-form">
+  <h3>Subscribe to our newsletter</h3>
+  <p>Get the latest posts delivered right to your inbox.</p>
+  
+  <form id="newsletter-form" class="form">
+    <div class="input-group">
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="Enter your email"
+        required
+      />
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </div>
+    <p class="form-message" aria-live="polite"></p>
+  </form>
+</div>
+
+<style>
+  .newsletter-form {
+    background: var(--bg-secondary);
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
+    margin: var(--space-8) 0;
+  }
+
+  .newsletter-form h3 {
+    margin-bottom: var(--space-2);
+  }
+
+  .newsletter-form p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+  }
+
+  .input-group {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .form-message {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-sm);
+  }
+
+  .form-message.success {
+    color: #10B981;
+  }
+
+  .form-message.error {
+    color: #EF4444;
+  }
+
+  @media (max-width: 640px) {
+    .input-group {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('newsletter-form');
+  const message = form?.querySelector('.form-message');
+  
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = form.email.value;
+    message.textContent = 'Subscribing...';
+    
+    try {
+      // Here you would typically make an API call to your newsletter service
+      // For demo purposes, we'll just simulate a success response
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      message.textContent = 'Successfully subscribed!';
+      message.className = 'form-message success';
+      form.reset();
+    } catch (error) {
+      message.textContent = 'An error occurred. Please try again.';
+      message.className = 'form-message error';
+    }
+  });
+</script>

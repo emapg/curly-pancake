@@ -1,0 +1,145 @@
+---
+---
+<div class="search-container">
+  <form id="search-form" class="search-form">
+    <input
+      type="search"
+      id="search-input"
+      placeholder="Search posts..."
+      class="search-input"
+    />
+    <div class="search-filters">
+      <select id="category-filter" class="filter-select">
+        <option value="">All Categories</option>
+        {/* Categories will be populated dynamically */}
+      </select>
+      <select id="sort-filter" class="filter-select">
+        <option value="recent">Most Recent</option>
+        <option value="popular">Most Popular</option>
+      </select>
+    </div>
+  </form>
+</div>
+
+<style>
+  .search-container {
+    margin: var(--space-6) 0;
+  }
+
+  .search-form {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--secondary-2);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    transition: border-color var(--transition-base);
+  }
+
+  .search-input:focus {
+    border-color: var(--accent-2);
+    outline: none;
+  }
+
+  .search-filters {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .filter-select {
+    padding: var(--space-2) var(--space-4);
+    border: 2px solid var(--secondary-2);
+    border-radius: var(--radius-lg);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color var(--transition-base);
+  }
+
+  .filter-select:focus {
+    border-color: var(--accent-2);
+    outline: none;
+  }
+
+  @media (max-width: 640px) {
+    .search-form {
+      flex-direction: column;
+    }
+    
+    .search-filters {
+      width: 100%;
+    }
+    
+    .filter-select {
+      flex: 1;
+    }
+  }
+</style>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+  
+  const searchForm = document.getElementById('search-form');
+  const searchInput = document.getElementById('search-input');
+  const categoryFilter = document.getElementById('category-filter');
+  const sortFilter = document.getElementById('sort-filter');
+
+  // Load categories
+  async function loadCategories() {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+
+    if (categories) {
+      categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id;
+        option.textContent = category.name;
+        categoryFilter?.appendChild(option);
+      });
+    }
+  }
+
+  // Handle search
+  let searchTimeout: NodeJS.Timeout;
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      searchForm?.dispatchEvent(new Event('submit'));
+    }, 300);
+  });
+
+  // Handle filters
+  categoryFilter?.addEventListener('change', () => {
+    searchForm?.dispatchEvent(new Event('submit'));
+  });
+
+  sortFilter?.addEventListener('change', () => {
+    searchForm?.dispatchEvent(new Event('submit'));
+  });
+
+  // Handle form submission
+  searchForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const searchQuery = searchInput?.value || '';
+    const categoryId = categoryFilter?.value;
+    const sortBy = sortFilter?.value;
+
+    // Dispatch custom event with search parameters
+    const searchEvent = new CustomEvent('blog:search', {
+      detail: { searchQuery, categoryId, sortBy }
+    });
+    document.dispatchEvent(searchEvent);
+  });
+
+  // Load categories on mount
+  loadCategories();
+</script>

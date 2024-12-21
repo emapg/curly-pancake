@@ -1,0 +1,108 @@
+---
+import { getCurrentUser } from '../../lib/auth';
+const user = await getCurrentUser();
+---
+
+{user ? (
+  <div class="user-menu">
+    <button class="user-button">
+      <img 
+        src={user.user_metadata.avatar_url || '/images/default-avatar.png'} 
+        alt="User avatar"
+        class="avatar"
+      />
+    </button>
+    <div class="dropdown" hidden>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/bookmarks">Bookmarks</a>
+      <button id="signout-button">Sign Out</button>
+    </div>
+  </div>
+) : (
+  <button id="signin-button" class="btn btn-primary">Sign In</button>
+)}
+
+<style>
+  .user-menu {
+    position: relative;
+  }
+
+  .user-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-2);
+    min-width: 200px;
+    margin-top: var(--space-2);
+  }
+
+  .dropdown a,
+  .dropdown button {
+    display: block;
+    width: 100%;
+    padding: var(--space-2) var(--space-4);
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+
+  .dropdown a:hover,
+  .dropdown button:hover {
+    background: var(--bg-secondary);
+  }
+</style>
+
+<script>
+  import { signOut } from '../../lib/auth';
+
+  const userButton = document.querySelector('.user-button');
+  const dropdown = document.querySelector('.dropdown');
+  const signinButton = document.getElementById('signin-button');
+  const signoutButton = document.getElementById('signout-button');
+  const authModal = document.getElementById('auth-modal');
+
+  // Toggle dropdown
+  userButton?.addEventListener('click', () => {
+    dropdown?.toggleAttribute('hidden');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!userButton?.contains(e.target as Node)) {
+      dropdown?.setAttribute('hidden', '');
+    }
+  });
+
+  // Show auth modal
+  signinButton?.addEventListener('click', () => {
+    authModal?.removeAttribute('hidden');
+  });
+
+  // Sign out
+  signoutButton?.addEventListener('click', async () => {
+    const { error } = await signOut();
+    if (!error) {
+      window.location.reload();
+    }
+  });
+</script>

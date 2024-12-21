@@ -1,0 +1,138 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const currentUrl = Astro.url.href;
+
+// Calculate reading time
+const content = await Astro.slots.render('default');
+const words = content.split(/\s+/).length;
+const readingTime = Math.ceil(words / 200); // Assuming 200 words per minute
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+
+  <body>
+    <ReadingProgress />
+    <Header />
+    
+    <main class="animate-fade-in">
+      <article class="blog-post">
+        <div class="hero-image">
+          {heroImage && (
+            <img
+              width={1020}
+              height={510}
+              src={heroImage}
+              alt=""
+              class="animate-scale-in"
+            />
+          )}
+        </div>
+        
+        <div class="prose">
+          <div class="post-header">
+            <div class="post-meta">
+              <FormattedDate date={pubDate} />
+              <span class="reading-time">
+                {readingTime} min read
+              </span>
+            </div>
+            
+            <h1>{title}</h1>
+            
+            {updatedDate && (
+              <div class="last-updated">
+                Last updated on <FormattedDate date={updatedDate} />
+              </div>
+            )}
+          </div>
+
+          <div class="post-content">
+            <slot />
+          </div>
+
+          <ShareButtons url={currentUrl} title={title} />
+          <NewsletterForm />
+        </div>
+      </article>
+    </main>
+    
+    <Footer />
+    <ThemeToggle />
+  </body>
+</html>
+
+<style>
+  .blog-post {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--space-4);
+  }
+
+  .hero-image {
+    margin-bottom: var(--space-8);
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .post-header {
+    margin-bottom: var(--space-8);
+    text-align: center;
+  }
+
+  .post-meta {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-4);
+  }
+
+  .reading-time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .reading-time::before {
+    content: "•";
+  }
+
+  .last-updated {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-4);
+  }
+
+  .post-content {
+    font-size: var(--font-size-lg);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 768px) {
+    .blog-post {
+      padding: var(--space-4) var(--space-2);
+    }
+  }
+</style>
