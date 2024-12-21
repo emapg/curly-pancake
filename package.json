@@ -14,7 +14,6 @@
     "@astrojs/mdx": "^3.1.7",
     "@astrojs/rss": "^4.0.7",
     "@astrojs/sitemap": "^3.2.0",
-    "@astrojs/supabase": "^0.3.0",
     "@supabase/supabase-js": "^2.39.0",
     "astro": "^4.15.11",
     "date-fns": "^2.30.0",
